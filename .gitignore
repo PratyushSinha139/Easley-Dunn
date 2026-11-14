@@ -13,5 +13,11 @@
 # for everyone who clones the repo.
 docker-compose.override.yml
 
+# Environment files hold secrets — any folder (backend/, frontend/, deploy/)
+.env
+
+# Integration keys mounted into cerberus_api on the server
+deploy/secrets/
+
 # Dependencies — installed by npm, never committed
 node_modules/
