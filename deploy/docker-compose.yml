@@ -13,11 +13,9 @@
 #     discord.controller.js; everything does stay under /api, no Caddy
 #     change needed.
 #
-# cerberus_db now builds from ./cerberus-db (Kashish's purpose-built image —
-# schema + seeded services baked in via /docker-entrypoint-initdb.d/) instead
-# of plain postgres:16-alpine. The production .env MUST set DB_SCHEMA=public
-# to match what that image's init scripts create — the old `easleydunn`
-# schema name from the Supabase dev setup doesn't apply here.
+# cerberus_db is plain postgres:16-alpine. The schema (tables + seeded
+# services) comes from the migrations in backend/migrations, run through the
+# cerberus_api image. The production .env sets DB_SCHEMA=cerberus.
 #
 # Secrets (SESSION_SECRET, PASSWORD_PEPPER, POSTGRES_PASSWORD, SMTP settings,
 # MAIL_FROM) live only in .env on the server — never in this file or the repo.
@@ -34,9 +32,7 @@ volumes:
 
 services:
   cerberus_db:
-    # Same registry/build convention as the other two services — path
-    # inferred the same way, confirm before first pull.
-    image: ghcr.io/professoreasley/cerberus-db:${IMAGE_TAG:-latest}
+    image: postgres:16-alpine
     container_name: cerberus_db
     restart: unless-stopped
     environment:
@@ -48,6 +44,11 @@ services:
     networks:
       - cerberus_internal
     mem_limit: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cerberus_app} -d ${POSTGRES_DB:-cerberus}"]
       interval: 10s
@@ -55,9 +56,7 @@ services:
       retries: 5
 
   cerberus_api:
-    # Path inferred from ProfessorEasley/Cerberus_Gating (GHCR names are
-    # lowercase) — confirm the exact org/repo casing before first pull.
-    image: ghcr.io/professoreasley/cerberus_api:${IMAGE_TAG:-latest}
+    image: ghcr.io/professoreasley/cerberus_api:${IMAGE_TAG:?Set IMAGE_TAG in .env to a release tag, e.g. v0.1.0}
     container_name: cerberus_api
     restart: unless-stopped
     env_file:
@@ -81,14 +80,24 @@ services:
       - cerberus_edge
       - cerberus_internal
     mem_limit: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     depends_on:
       cerberus_db:
         condition: service_healthy
 
   cerberus_web:
-    image: ghcr.io/professoreasley/cerberus_web:${IMAGE_TAG:-latest}
+    image: ghcr.io/professoreasley/cerberus_web:${IMAGE_TAG:?Set IMAGE_TAG in .env to a release tag, e.g. v0.1.0}
     container_name: cerberus_web
     restart: unless-stopped
     networks:
       - cerberus_edge
     mem_limit: 128m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
