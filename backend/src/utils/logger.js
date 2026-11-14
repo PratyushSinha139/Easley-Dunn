@@ -4,6 +4,10 @@
  *
  * - Console output with colours in development.
  * - JSON log files in production (logs/combined.log, logs/error.log).
+ *   Each file is size-limited: it rolls over at 10 MB and at most 3 files are
+ *   kept (error.log, error1.log, error2.log), matching the Docker log limits
+ *   in deploy/docker-compose.yml. tailable keeps the newest entries in the
+ *   unnumbered file.
  */
 
 "use strict";
@@ -28,6 +32,13 @@ const devFormat = combine(
 
 const prodFormat = combine(timestamp(), errors({ stack: true }), json());
 
+// winston 3.x File transport options (lib/winston/transports/file.js).
+const fileLimits = {
+  maxsize: 10 * 1024 * 1024, // bytes
+  maxFiles: 3,
+  tailable: true,
+};
+
 const logger = createLogger({
   level: process.env.LOG_LEVEL || "info",
   format: isDev ? devFormat : prodFormat,
@@ -39,9 +50,11 @@ const logger = createLogger({
           new transports.File({
             filename: path.join("logs", "error.log"),
             level: "error",
+            ...fileLimits,
           }),
           new transports.File({
             filename: path.join("logs", "combined.log"),
+            ...fileLimits,
           }),
         ]),
   ],

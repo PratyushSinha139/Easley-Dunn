@@ -22,8 +22,7 @@ function requireSecret(name, minLength = 32) {
   const value = process.env[name];
   if (!value || value.length < minLength) {
     throw new Error(
-      `${name} must be set to a random string of at least ${minLength} characters. ` +
-      `Generate one with: openssl rand -base64 48`
+      `${name} must be set to a random string of at least ${minLength} characters.`
     );
   }
   return value;
@@ -77,16 +76,16 @@ const appConfig = {
   sessionSecureCookie: nodeEnv !== "development" && nodeEnv !== "test",
 
   // ─── Password hashing ───────────────────────────────────────────────────────
-  // Server-side pepper concatenated with the password before bcrypt.
+  // Server-side pepper concatenated with the password before bcrypt. Required:
+  // the app will not start without it. Changing it invalidates every stored
+  // password hash.
   //
-  // TODO(security): this fallback is the value every existing hash was built
-  // with, and it is in the repo's git history — so the pepper is public and
-  // currently provides no protection. Deliberately left as-is for now; the
-  // real fix is decided alongside "passwords vs SSO". If passwords stay:
-  // HMAC-SHA256 the password with a real pepper before bcrypt (also fixes
-  // bcrypt's 72-byte truncation dropping the pepper on long passwords), add a
-  // hash_version column, and force a reset for every console user.
-  passwordPepper: process.env.PASSWORD_PEPPER || "cerberus-secret-pepper-key",
+  // TODO(security): bcrypt reads only the first 72 bytes of password + pepper,
+  // so long passwords lose part or all of the pepper. The fix is decided
+  // alongside "passwords vs SSO". If passwords stay: HMAC-SHA256 the password
+  // with the pepper before bcrypt, add a hash_version column, and force a
+  // reset for every console user.
+  passwordPepper: requireSecret("PASSWORD_PEPPER"),
 };
 
 module.exports = appConfig;
