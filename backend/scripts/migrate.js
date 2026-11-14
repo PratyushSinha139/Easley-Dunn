@@ -22,7 +22,7 @@ const args = process.argv.slice(2);
 
 // Refuse to guess. Without this, node-pg-migrate falls back to "public".
 if (!schema && args[0] !== "create") {
-  console.error("DB_SCHEMA is not set. Set it in backend/.env (e.g. DB_SCHEMA=refactor).");
+  console.error("DB_SCHEMA is not set. Set it in backend/.env (e.g. DB_SCHEMA=dev_cerberus).");
   process.exit(1);
 }
 
