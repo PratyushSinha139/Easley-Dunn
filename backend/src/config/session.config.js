@@ -7,7 +7,7 @@
  * from the database on each request (see requireAuth.middleware.js), which is
  * what makes revocation immediate.
  *
- * Table: <DB_SCHEMA>.session — see sql/001_create_session_table.sql.
+ * Table: <DB_SCHEMA>.session — see migrations/1794528277714_session-table.sql.
  */
 
 "use strict";
@@ -29,7 +29,7 @@ const sessionMiddleware = session({
     pool: getPool(),
     schemaName: dbConfig.schema,
     tableName: "session",
-    // The table is created by sql/001_create_session_table.sql, which also adds
+    // The table is created by migrations/1794528277714_session-table.sql, which also adds
     // the idx_session_user index that connect-pg-simple does not know about.
     createTableIfMissing: false,
     // Seconds between sweeps for expired rows — no cron needed.
