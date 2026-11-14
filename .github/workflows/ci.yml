@@ -1,0 +1,76 @@
+# Checks every pull request and every push to main. release.yml also calls
+# this workflow first, so no image is built from code that fails these checks.
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # A throwaway Postgres for the tests that need a real database. Same major
+    # version as production (deploy/docker-compose.yml); deleted when the job ends.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: cerberus_app
+          POSTGRES_PASSWORD: ci-only-password # throwaway container, not a real secret
+          POSTGRES_DB: cerberus_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U cerberus_app -d cerberus_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://cerberus_app:ci-only-password@localhost:5432/cerberus_test
+      DB_SCHEMA: cerberus # same schema the app uses in production
+      DB_SSL: "false" # the service container has no TLS
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      # Builds the schema from nothing, so a broken migration fails here and
+      # not on the server. --create-schema adds the "cerberus" schema first.
+      - run: npm run migrate -- up --create-schema
+      - run: npm test
+
+  # Build only for now. Lint and tests are not set up yet.
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      # Only checks that the build compiles; the output is thrown away.
+      # The image that gets deployed is built by release.yml.
+      - run: npm run build
