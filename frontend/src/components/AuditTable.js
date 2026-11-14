@@ -17,8 +17,8 @@ import { Link } from "react-router-dom";
 import { ChevronRight, RefreshCw, Download } from "lucide-react";
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 import Toasts, { useToasts } from "./Toasts";
+import { API_URL } from "../config";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
 const PAGE_SIZE = 50;
 
 /**

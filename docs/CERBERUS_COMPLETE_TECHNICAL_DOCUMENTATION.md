@@ -156,7 +156,7 @@ easleydunn/
    - Calls `require("dotenv").config()` to populate `process.env`.
    - Imports `backend/src/app.js` and `backend/src/db/database.js`.
    - Executes `testConnection()` to query PostgreSQL (`SET search_path TO easleydunn`).
-   - Listens on `appConfig.port` (default `5001`).
+   - Listens on `appConfig.port` (default `5000`).
 2. **App Factory (`backend/src/app.js`):**
    - Configures Helmet security headers, CORS origins, Express rate-limiting (default 100 req / 15 min), request body parsers (10MB JSON limit), and Morgan HTTP logger.
    - Mounts root router `backend/src/routes/index.routes.js` at `/`.
@@ -204,7 +204,7 @@ Request Flow Pattern:
 
 ## 8. API Reference Table
 
-Base URL: `http://localhost:5001` (mounted at `/`)
+Base URL: `http://localhost:5000` (mounted at `/`)
 
 | Method | Endpoint | Purpose | Request Body / Params | Response | Handler / Middleware |
 | --- | --- | --- | --- | --- | --- |
@@ -496,7 +496,7 @@ Cerberus implements a **Provider-Specific Controller Pattern** with a **Unified 
 
 | Variable | Used By | Purpose | Required | Sensitive |
 | --- | --- | --- | --- | --- |
-| `PORT` | `backend/server.js` | HTTP listening port (default `5001`) | No | No |
+| `PORT` | `backend/server.js` | HTTP listening port (default `5000`) | No | No |
 | `NODE_ENV` | `backend/src/config/app.config.js` | Environment mode (`development`/`production`) | No | No |
 | `DATABASE_URL` | `backend/src/config/db.config.js` | PostgreSQL connection URL string | **Yes** | **Yes** |
 | `DB_SCHEMA` | `backend/src/config/db.config.js` | PostgreSQL schema name (default `easleydunn`) | No | No |

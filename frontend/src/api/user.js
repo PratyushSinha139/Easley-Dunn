@@ -8,8 +8,7 @@
  */
 
 import { fetchWithAuth } from "../utils/fetchWithAuth";
-
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
+import { API_URL } from "../config";
 
 async function call(path, options) {
   const res = await fetchWithAuth(`${API_URL}${path}`, options);

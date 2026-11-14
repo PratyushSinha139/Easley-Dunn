@@ -23,8 +23,7 @@ import { useAuth } from "../context/AuthContext";
 import PasswordRules from "../components/PasswordRules";
 import Logo from "../components/Logo";
 import { MIN_LENGTH, passwordRules, passwordIsValid } from "../utils/passwordPolicy";
-
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
+import { API_URL } from "../config";
 
 // Everything that differs between the two links. Keeping it in one table is
 // what stops the second mode drifting into a near-copy of the first.

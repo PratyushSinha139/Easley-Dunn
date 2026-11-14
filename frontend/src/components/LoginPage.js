@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Mail, Lock, Eye, EyeOff, AlertCircle, RefreshCw, MailCheck, ArrowLeft } from "lucide-react";
 import Logo from "./Logo";
-
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
+import { API_URL } from "../config";
 
 export default function LoginPage() {
   const { login, error, setError, sessionExpired } = useAuth();

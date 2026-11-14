@@ -17,8 +17,7 @@ import Toasts, { useToasts } from "../components/Toasts";
 import Select from "../components/Select";
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 import * as teamsApi from "../api/teams";
-
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
+import { API_URL } from "../config";
 
 function fullName(person) {
   const name = `${person.first_name || ""} ${person.last_name || ""}`.trim();

@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { UNAUTHENTICATED_EVENT } from "../utils/fetchWithAuth";
+import { API_URL } from "../config";
 
 const AuthContext = createContext(null);
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);

@@ -10,8 +10,7 @@
 import React, { useState } from "react";
 import { X, Lock, RefreshCw } from "lucide-react";
 import { fetchWithAuth } from "../utils/fetchWithAuth";
-
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
+import { API_URL } from "../config";
 
 export default function EditPersonModal({ person, teamNames, onClose, onSaved }) {
   const [name, setName] = useState(person.name || "");
