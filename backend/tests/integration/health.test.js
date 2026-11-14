@@ -3,7 +3,8 @@
  * @description Integration tests for the health-check endpoints.
  *
  * Run with:  npm test
- * Requires a running MySQL instance (or adjust to mock the pool).
+ * /health/db needs a real PostgreSQL database (DATABASE_URL, DB_SCHEMA); CI
+ * starts one as a service container (see .github/workflows/ci.yml).
  */
 
 "use strict";
