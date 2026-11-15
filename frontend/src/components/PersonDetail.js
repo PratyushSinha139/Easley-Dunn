@@ -24,8 +24,7 @@ import ToastContainer from "./ToastContainer";
 import AuditTable from "./AuditTable";
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 import { summarize } from "../utils/connectorResults";
-
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
+import { API_URL } from "../config";
 
 // The server's own titles, from roles.config.js. USER used to render as a
 // dash on the idea that "user" said nothing worth saying; in a list where

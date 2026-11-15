@@ -14,8 +14,7 @@ import { X, Mail, RefreshCw, Plus, Copy, Check, TriangleAlert } from "lucide-rea
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 import * as teamsApi from "../api/teams";
 import Select from "./Select";
-
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
+import { API_URL } from "../config";
 
 export default function AddPersonModal({ teams = [], onClose, onAdded, onTeamsChanged }) {
   const [email, setEmail] = useState("");

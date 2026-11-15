@@ -49,7 +49,7 @@ jobs:
         with:
           persist-credentials: false
 
-      # Without it the frontend silently falls back to http://localhost:5001.
+      # Without it the frontend silently falls back to http://localhost:5000.
       - name: Check the API URL is set
         if: matrix.image == 'cerberus_web'
         env:

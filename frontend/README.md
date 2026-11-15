@@ -21,7 +21,7 @@ The dashboard allows administrators to view all active and inactive users, searc
 Before running the application, you must configure the backend API URL. Create a `.env` file in the root of the `frontend` directory:
 
 ```env
-REACT_APP_API_URL=http://localhost:5001
+REACT_APP_API_URL=http://localhost:5000
 ```
 
 *(Ensure the backend Node.js server is running on the port specified above).*
