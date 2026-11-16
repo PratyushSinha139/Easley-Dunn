@@ -1,158 +1,90 @@
-# 🛡️ Easley-Dunn (Cerberus Access Management Platform)
+# Cerberus
 
-> A centralized, automated user access governance and identity lifecycle management platform.
+Access management for the Easley-Dunn lab. Cerberus is one place to invite people, assign them to teams, and grant or revoke their access to third-party services, with every change recorded in an audit log.
 
-Cerberus centralizes user onboarding, role delegation, active access protection, and multi-platform offboarding across external cloud infrastructure, developer consoles, analytics tools, and team collaboration applications.
+## What it does
 
----
+- **Accounts by invite.** An admin adds a person and Cerberus emails them a link to set their password. Sign-in uses email and password, with server-side sessions.
+- **Three roles.** `ADMIN` (full control), `LEAD` (grants access to their own team's members), `USER` (sees their own access).
+- **Teams.** People are grouped into teams, each with a lead.
+- **Service access.** Grant and revoke access to third-party services from the console. A person cannot be deactivated while they still hold access to any service.
+- **Audit log.** Every grant and revoke is recorded and viewable in the console.
 
-## 🌟 Key Features & Capabilities
+### Services
 
-- **🔐 Password-Based Authentication**: Email + password login (`/auth/login`) with server-side sessions stored in PostgreSQL, idle and absolute timeouts, and immediate revocation on role change or deactivation.
-- **🛡️ Active Access Protection**: Users with active third-party software permissions (`user_service_access`) cannot be marked as `Inactive` until all software accesses are cleanly offboarded.
-- **🔄 Default Role Reset**: Deactivating a user automatically resets their system role to `MEMBER`.
-- **📊 Central Audit Logger (`logUtils.js`)**: Standardized activity logger (`logActivity`) recording all `ONBOARD` and `OFFBOARD` operations (`SUCCESS` / `FAILED`) with error details and timestamps in the PostgreSQL `log` table.
-- **🔑 Centralized Credential Loader (`credentialUtils.js`)**: Uniform, secure loading of service account `.json` and `.p8` credential files across all provider integrations.
-- **🔌 Multi-Software Provisioning & Deprovisioning**: Integrated support for:
-  - **Google Play Console** (`GOOGLE_PLAY_CONSOLE`)
-  - **BigQuery** (`BIG_QUERY`)
-  - **Google Drive** (`GOOGLE_DRIVE`)
-  - **Google Analytics** (`GOOGLE_ANALYTICS`)
-  - **App Store Connect** (`APPLE_STORE_CONNECT`)
-  - **Google Cloud IAM** (`GOOGLE_CLOUD`)
-  - **Firebase Auth** (`FIREBASE`)
-  - **Kanboard** (`KANBOARD`)
-  - **Discord Guilds** (`DISCORD`)
+Enabled for the beta:
 
----
+- Google Play Console
+- Google Drive
+- Apple App Store Connect
+- Google Cloud
+- Discord
 
-## 🛠️ Technology Stack
+Connector code exists but is not enabled: BigQuery, Google Analytics, Firebase, Kanboard.
 
-| Layer | Technology |
-| :--- | :--- |
-| **Frontend** | React 18, Vanilla CSS / Custom Modern Component Styling, Toast Notifications |
-| **Backend** | Node.js, Express.js (CommonJS), Morgan, Helmet, CORS |
-| **Database** | PostgreSQL (`pg` connection pool) with `easleydunn.users` schema |
-| **Testing** | Jest, Supertest (100% passing test suite across 66 integration tests) |
-| **Documentation** | Swagger / OpenAPI 3.0 (`/docs`), Markdown docs in `docs/` |
+## Tech stack
 
----
+- **Frontend:** React, Tailwind CSS
+- **Backend:** Node.js, Express
+- **Database:** PostgreSQL, schema managed with migrations (`backend/migrations/`)
+- **Deployment:** Docker Compose behind Caddy (`deploy/`)
 
-## 🚀 Getting Started
+## Running it locally
 
-### 1. Prerequisites
-- **Node.js**: v18.0.0 or higher
-- **PostgreSQL**: v14.0 or higher (or Supabase PostgreSQL instance)
+You need Node.js 18 or newer and a PostgreSQL database.
 
-### 2. Environment Configuration
-Create a `.env` file inside the `backend/` directory:
+1. **Install dependencies** from the repo root:
 
-```env
-PORT=5050
-NODE_ENV=development
-DATABASE_URL=postgresql://postgres:password@localhost:5432/easleydunn?sslmode=require
-CORS_ORIGINS=http://localhost:3001
+   ```bash
+   npm install
+   npm install --prefix backend
+   npm install --prefix frontend
+   ```
 
-# REQUIRED — the backend will not start without this.
-# Generate with: openssl rand -base64 48
-SESSION_SECRET=
+2. **Create the two `.env` files.** Copy `backend/.env.example` to `backend/.env` and `frontend/.env.example` to `frontend/.env`, then fill them in. Every setting is explained in those files.
 
-# Optional session tuning (defaults shown)
-SESSION_IDLE_MINUTES=30
-SESSION_ABSOLUTE_HOURS=8
-SESSION_SAMESITE=lax
+3. **Create the database tables** (from `backend/`):
 
-# Provider Credentials Directories (placed in backend/):
-# - googleplay_json/
-# - googlecloud_json/
-# - googledrive_json/
-# - googleanalytics_json/
-# - firebase_json/
-# - apple_key/
-```
+   ```bash
+   npm run migrate -- up --create-schema
+   ```
 
-### 3. Installation
+4. **Create local test accounts**, one per role (from `backend/`):
 
-Install dependencies for both backend and frontend:
+   ```bash
+   npm run seed:dev
+   ```
+
+5. **Start a local mail inbox** so invite and reset emails can be read (from `backend/`, in its own terminal). The inbox opens at `http://localhost:1080`.
+
+   ```bash
+   npm run maildev
+   ```
+
+6. **Start the app** from the repo root:
+
+   ```bash
+   npm run dev
+   ```
+
+   The frontend runs at `http://localhost:3000` and the backend at `http://localhost:5000`. API docs are at `http://localhost:5000/docs`.
+
+## Tests
 
 ```bash
-# Backend dependencies
-cd backend
-npm install
-
-# Frontend dependencies
-cd ../frontend
-npm install
+npm test --prefix backend
 ```
 
-### 4. Running locally
+## Repository layout
 
-Start both backend and frontend development servers concurrently from the **root directory**:
-
-```bash
-# Install root launcher dependencies
-npm install
-
-# Start both backend (http://localhost:5050) and frontend (http://localhost:3001) concurrently
-npm run dev
+```text
+backend/    Express API, migrations, scripts, tests
+frontend/   React console
+deploy/     Docker Compose, Caddy config, server runbook
+docs/       Integration guides
 ```
 
-Alternatively, you can run them individually:
+## More documentation
 
-```bash
-# Start backend server only
-npm run dev:backend
-
-# Start frontend app only
-npm run dev:frontend
-```
-
----
-
-## 🧪 Testing & Verification
-
-Run the full integration test suite in the backend:
-
-```bash
-cd backend
-npm test
-```
-
-Build the frontend production bundle:
-
-```bash
-cd frontend
-npm run build
-```
-
----
-
-## 📂 Project Directory Structure
-
-```
-easleydunn/
-├── backend/
-│   ├── src/
-│   │   ├── app.js               # Express application factory
-│   │   ├── server.js            # HTTP listener startup
-│   │   ├── config/              # App & DB configuration
-│   │   ├── controllers/         # Software integration & admin controllers
-│   │   ├── db/                  # PostgreSQL pool initialization
-│   │   ├── middlewares/         # Auth, RBAC, input validation & error handlers
-│   │   ├── routes/              # Express feature routers
-│   │   └── utils/               # Central logUtils, credentialUtils, userUtils
-│   └── tests/
-│       └── integration/         # Comprehensive Jest integration tests
-├── frontend/
-│   ├── src/
-│   │   ├── App.js               # Main React dashboard layout
-│   │   ├── components/          # Role management, access cards & Toast notifications
-│   │   └── index.css            # Global CSS custom styles & tokens
-└── docs/                        # Complete technical documentation index
-```
-
----
-
-## 📖 Comprehensive Documentation
-
-For detailed technical guides, API specs, database schemas, and provider setup guides, see the [Technical Documentation Index](file:///Users/kj/Desktop/easleydunn/docs/README.md).
+- [Server runbook](deploy/RUNBOOK.md): deploying and operating Cerberus on the server
+- [Documentation index](docs/README.md): per-service integration guides
