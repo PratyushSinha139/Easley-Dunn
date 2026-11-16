@@ -38,7 +38,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-cerberus}
       POSTGRES_USER: ${POSTGRES_USER:-cerberus_app}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is not set in .env}
     volumes:
       - cerberus_db_data:/var/lib/postgresql/data
     networks:
@@ -56,26 +56,24 @@ services:
       retries: 5
 
   cerberus_api:
-    # TODO(prod): change to ghcr.io/professoreasley/cerberus_api when the repo moves to
-    # ProfessorEasley/Cerberus_Gating.
-    image: ghcr.io/pratyushsinha139/cerberus_api:${IMAGE_TAG:?Set IMAGE_TAG in .env to a release tag, e.g. v0.1.0}
+    image: ghcr.io/professoreasley/cerberus_api:${IMAGE_TAG:?Set IMAGE_TAG in .env to a release tag, e.g. v0.1.0}
     container_name: cerberus_api
     restart: unless-stopped
     env_file:
       - .env
     environment:
       PORT: 5000
-      DATABASE_URL: postgresql://${POSTGRES_USER:-cerberus_app}:${POSTGRES_PASSWORD}@cerberus_db:5432/${POSTGRES_DB:-cerberus}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-cerberus_app}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is not set in .env}@cerberus_db:5432/${POSTGRES_DB:-cerberus}
     volumes:
       - cerberus_api_logs:/app/logs
       # Each integration's key only exists on the server once its stage goes
       # live. An empty host folder here is harmless — the app just treats
       # that integration as unconfigured. Rollback = delete the file inside.
-      - ./secrets/firebase_json:/app/firebase_json:ro
+      # - ./secrets/firebase_json:/app/firebase_json:ro
       - ./secrets/googleplay_json:/app/googleplay_json:ro
-      - ./secrets/bigquery_json:/app/bigquery_json:ro
+      # - ./secrets/bigquery_json:/app/bigquery_json:ro
       - ./secrets/googledrive_json:/app/googledrive_json:ro
-      - ./secrets/googleanalytics_json:/app/googleanalytics_json:ro
+      # - ./secrets/googleanalytics_json:/app/googleanalytics_json:ro
       - ./secrets/apple_key:/app/apple_key:ro
       - ./secrets/googlecloud_json:/app/googlecloud_json:ro
     networks:
@@ -92,9 +90,7 @@ services:
         condition: service_healthy
 
   cerberus_web:
-    # TODO(prod): change to ghcr.io/professoreasley/cerberus_web when the repo moves to
-    # ProfessorEasley/Cerberus_Gating.
-    image: ghcr.io/pratyushsinha139/cerberus_web:${IMAGE_TAG:?Set IMAGE_TAG in .env to a release tag, e.g. v0.1.0}
+    image: ghcr.io/professoreasley/cerberus_web:${IMAGE_TAG:?Set IMAGE_TAG in .env to a release tag, e.g. v0.1.0}
     container_name: cerberus_web
     restart: unless-stopped
     networks:
